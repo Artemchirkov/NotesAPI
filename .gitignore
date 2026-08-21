@@ -1,0 +1,25 @@
+# Python & Django
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+venv/
+.venv/
+
+# Environment variables (секреты)
+.env
+.env.local
+
+# Database & Docker storage
+pgdata/
+postgres_data/
+
+# IDE & OS files
+.idea/
+.vscode/
+.DS_Store
+
+# Frontend build/deps (если есть node_modules)
+node_modules/
+dist/
+build/

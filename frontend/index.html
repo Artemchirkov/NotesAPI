@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note API Manager (JWT)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full font-sans antialiased flex flex-col">
+
+    <!-- Шапка -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 px-6 py-4 sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-wide">
+                    Note API 
+                    <span class="text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 ml-2">JWT Auth</span>
+                </h1>
+            </div>
+            
+            <!-- Индикатор авторизации -->
+            <div id="authStatus" class="flex items-center gap-2 text-sm bg-slate-900/60 px-3 py-1.5 rounded-full border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-amber-500" id="statusDot"></span>
+                <span id="statusText" class="text-slate-400">Анонимный режим</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-12 gap-6">
+
+        <!-- Левая колонка: Форма входа и Форма создания -->
+        <div class="md:col-span-5 flex flex-col gap-6">
+            
+            <!-- Форма JWT Авторизации -->
+            <section class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl">
+                <h2 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-indigo-400"></i> JWT Авторизация
+                </h2>
+                <div class="space-y-3">
+                    <input type="text" id="username" placeholder="Логин" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition">
+                    <input type="password" id="password" placeholder="Пароль" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition">
+                    
+                    <div class="flex gap-2">
+                        <button onclick="loginJWT()" 
+                            class="flex-1 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-medium py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/20 flex justify-center items-center gap-2 text-sm">
+                            <i class="fa-solid fa-right-to-bracket"></i> Войти (JWT)
+                        </button>
+                        <button onclick="logoutJWT()" 
+                            class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium px-4 py-2.5 rounded-xl transition text-sm">
+                            Выйти
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Форма создания заметки -->
+            <section class="bg-slate-800 rounded-2xl p-5 border border-slate-700 shadow-xl flex-1 flex flex-col">
+                <h2 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-400"></i> Новая заметка
+                </h2>
+                <form id="createNoteForm" onsubmit="createNote(event)" class="space-y-4 flex-1 flex flex-col">
+                    <input type="text" id="noteTitle" placeholder="Заголовок..." required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 transition">
+                    
+                    <textarea id="noteContent" placeholder="Текст вашей заметки..." required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:border-emerald-500 transition flex-1 resize-none min-h-[120px]"></textarea>
+
+                    <div class="flex items-center justify-between py-1">
+                        <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-300">
+                            <input type="checkbox" id="noteIsPublic" checked class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-600 focus:ring-0">
+                            <span>Сделать публичной</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" 
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-medium py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Опубликовать
+                    </button>
+                </form>
+            </section>
+        </div>
+
+        <!-- Правая колонка: Список заметок -->
+        <div class="md:col-span-7 flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-slate-200">Лента заметок</h2>
+                <button onclick="fetchNotes()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 text-slate-300">
+                    <i class="fa-solid fa-rotate-right"></i> Обновить
+                </button>
+            </div>
+
+            <!-- Всплывающие уведомления -->
+            <div id="alertBox" class="hidden p-4 rounded-xl text-sm border flex items-center justify-between transition-all"></div>
+
+            <!-- Список заметок -->
+            <div id="notesContainer" class="space-y-3 overflow-y-auto max-h-[calc(100vh-180px)] pr-1">
+                <!-- Сюда подгружаются карточки заметок -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Логика взаимодействия с REST API -->
+    <script>
+        const TOKEN_URL = '/api/token/';
+        const API_URL = '/api/notes/';
+
+        let accessToken = localStorage.getItem('access_token') || '';
+
+        // Проверяем токен при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            if (accessToken) {
+                updateAuthUI(true, 'JWT токен активен');
+            }
+            fetchNotes();
+        });
+
+        function showAlert(msg, isError = false) {
+            const box = document.getElementById('alertBox');
+            box.className = `p-4 rounded-xl text-sm border flex items-center justify-between transition-all ${
+                isError 
+                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' 
+                    : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+            }`;
+            box.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.classList.add('hidden')" class="font-bold ml-2">&times;</button>`;
+            box.classList.remove('hidden');
+            setTimeout(() => box.classList.add('hidden'), 4000);
+        }
+
+        function updateAuthUI(isAuth, userText = '') {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            if (isAuth) {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                text.innerText = userText || 'JWT Авторизован';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+                text.innerText = 'Анонимный режим';
+            }
+        }
+
+        // Вход и получение JWT
+        async function loginJWT() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showAlert('Введите логин и пароль!', true);
+                return;
+            }
+
+            try {
+                const res = await fetch(TOKEN_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Неверный логин или пароль');
+                }
+
+                const data = await res.json();
+                accessToken = data.access;
+                localStorage.setItem('access_token', accessToken);
+
+                updateAuthUI(true, `Пользователь: ${username}`);
+                showAlert('Успешный вход! Токен сохранён.');
+                fetchNotes();
+
+            } catch (err) {
+                showAlert(err.message, true);
+            }
+        }
+
+        // Выход из системы
+        function logoutJWT() {
+            accessToken = '';
+            localStorage.removeItem('access_token');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            updateAuthUI(false);
+            showAlert('Вы вышли из системы');
+            fetchNotes();
+        }
+
+        // Сборка заголовка с токеном
+        function getAuthHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            if (accessToken) {
+                headers['Authorization'] = `Bearer ${accessToken}`;
+            }
+            return headers;
+        }
+
+        // Загрузка списка заметок
+        async function fetchNotes() {
+            const container = document.getElementById('notesContainer');
+            try {
+                const res = await fetch(API_URL, { 
+                    headers: getAuthHeaders() 
+                });
+                
+                if (res.status === 401 && accessToken) {
+                    updateAuthUI(false);
+                    showAlert('Срок действия токена истёк, войдите заново', true);
+                }
+
+                if (!res.ok && res.status !== 401) throw new Error(`Ошибка HTTP: ${res.status}`);
+                
+                const notes = await res.json();
+                
+                if (!Array.isArray(notes) || notes.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 bg-slate-800/40 rounded-2xl border border-dashed border-slate-700">
+                            <i class="fa-solid fa-ghost text-4xl text-slate-600 mb-3"></i>
+                            <p class="text-slate-400 text-sm">Нет доступных заметок</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = notes.map(n => `
+                    <div class="bg-slate-800 border border-slate-700/80 hover:border-slate-600 rounded-2xl p-5 shadow-lg transition-all group">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-100 text-base group-hover:text-indigo-400 transition">${escapeHtml(n.title)}</h3>
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
+                                n.is_public 
+                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                                    : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            }">
+                                ${n.is_public ? '<i class="fa-solid fa-globe"></i> Public' : '<i class="fa-solid fa-lock"></i> Private'}
+                            </span>
+                        </div>
+                        <p class="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed mb-4">${escapeHtml(n.content)}</p>
+                        
+                        <div class="flex justify-between items-center pt-3 border-t border-slate-700/50 text-xs text-slate-500">
+                            <span>ID: #${n.id}</span>
+                            <button onclick="deleteNote(${n.id})" 
+                                class="text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 px-2.5 py-1 rounded-lg transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i> Удалить
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm rounded-xl">
+                        Не удалось получить данные. Проверь, запущен ли бэкенд Django.
+                    </div>`;
+            }
+        }
+
+        // Создание заметки
+        async function createNote(e) {
+            e.preventDefault();
+            
+            if (!accessToken) {
+                showAlert('Для создания заметки нужно авторизоваться по JWT!', true);
+                return;
+            }
+
+            const body = {
+                title: document.getElementById('noteTitle').value,
+                content: document.getElementById('noteContent').value,
+                is_public: document.getElementById('noteIsPublic').checked
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(body)
+                });
+
+                if (res.status === 201 || res.status === 200) {
+                    showAlert('Заметка создана!');
+                    document.getElementById('createNoteForm').reset();
+                    fetchNotes();
+                } else {
+                    const errData = await res.json();
+                    showAlert(`Ошибка создания: ${JSON.stringify(errData)}`, true);
+                }
+            } catch (err) {
+                showAlert('Сетевая ошибка при создании', true);
+            }
+        }
+
+        // Удаление заметки
+        async function deleteNote(id) {
+            if (!confirm('Удалить эту заметку?')) return;
+
+            try {
+                const res = await fetch(`${API_URL}${id}/`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (res.status === 204 || res.status === 200) {
+                    showAlert('Заметка удалена!');
+                    fetchNotes();
+                } else if (res.status === 403) {
+                    showAlert('Ошибка 403: Нельзя удалять чужие заметки!', true);
+                } else if (res.status === 401) {
+                    showAlert('Ошибка 401: Требуется авторизация!', true);
+                } else {
+                    showAlert(`Ошибка удаления: ${res.status}`, true);
+                }
+            } catch (err) {
+                showAlert('Сетевая ошибка при удалении', true);
+            }
+        }
+
+        // Защита от XSS
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
