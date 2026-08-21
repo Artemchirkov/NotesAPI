@@ -16,5 +16,5 @@
 
 ### 1. Клонирование репозитория
 ```bash
-git clone [https://github.com/Artemchirkov/notes-api.git](https://github.com/Artemchirkov/notes-api.git)
+git clone (https://github.com/Artemchirkov/NotesAPI)
 cd notes-api
