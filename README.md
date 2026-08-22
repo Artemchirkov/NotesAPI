@@ -18,3 +18,5 @@
 ```bash
 git clone (https://github.com/Artemchirkov/NotesAPI)
 cd notes-api
+
+SwaggerUI http://193.23.218.26:3000/api/docs
