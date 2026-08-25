@@ -1,8 +1,11 @@
 # 📝 Notes Management REST API
+[English](README.md) | [Русский](README_RU.md)
 
-Полнофункциональный REST API сервис для управления заметками, построенный на **Django REST Framework**, **PostgreSQL** и **JWT-авторизации**. Проект полностью контейнеризирован с помощью **Docker**.
+---
 
-## 🚀 Стек технологий
+A fully-featured REST API service for managing notes, built with **Django REST Framework**, **PostgreSQL**, and **JWT Authentication**. The project is fully containerized using **Docker**.
+
+## 🚀 Tech Stack
 
 * **Backend:** Python 3.11, Django 5.x, Django REST Framework
 * **Auth:** SimpleJWT (JWT Access / Refresh Tokens)
@@ -12,12 +15,14 @@
 
 ---
 
-## 🛠️ Быстрый запуск (Docker Compose)
+## 🛠️ Quick Start (Docker Compose)
 
-### 1. Клонирование репозитория
+### 1. Clone the repository
 ```bash
-git clone (https://github.com/Artemchirkov/NotesAPI)
-cd notes-api
+git clone [https://github.com/Artemchirkov/NotesAPI](https://github.com/Artemchirkov/NotesAPI)
+cd NotesAPI
+docker compose up --build -d
 ```
-SwaggerUI
+Live SwaggerUI
+You can test the deployed API directly at:
 http://193.23.218.26:3000/api/docs
