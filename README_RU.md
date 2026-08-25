@@ -32,11 +32,11 @@
 ### 1. Клонирование репозитория
 
 ```bash
-
 git clone (https://github.com/Artemchirkov/NotesAPI)
 
 cd notes-api
 
+docker compose up --build -d
 ```
 
 SwaggerUI
