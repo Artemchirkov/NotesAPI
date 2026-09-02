@@ -19,8 +19,10 @@ A fully-featured REST API service for managing notes, built with **Django REST F
 
 ### 1. Clone the repository
 ```bash
-git clone [https://github.com/Artemchirkov/NotesAPI](https://github.com/Artemchirkov/NotesAPI)
+git clone https://github.com/Artemchirkov/NotesAPI
+
 cd NotesAPI
+
 docker compose up --build -d
 ```
 Live SwaggerUI
